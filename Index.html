@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha Loja - Vue.js</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #ffe5f0; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto 20px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .logo { font-size: 24px; font-weight: bold; color: #ff00ff; }
+    .carrinho { background: #b0e0e6; color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
+    .busca { max-width: 1000px; margin: 0 auto 20px; }
+    .busca input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+    .busca input:focus { border-color: #bc85a3; outline: none; }
+    .produtos { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+    .card img { width: 100%; height: 220px; object-fit: cover; }
+    .card-info { padding: 15px; }
+    .card h3 { font-size: 18px; margin-bottom: 8px; }
+    .card .preco { color: #9799ba; font-weight: bold; font-size: 20px; margin-bottom: 12px; }
+    .card button { width: 100%; padding: 10px; background: #42b883; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    .card button:hover { background: #369e71; }
+    .vazio { text-align: center; padding: 40px; color: #777; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">🛒 Minha Loja Vue</div>
+      <div class="carrinho">Itens no carrinho: {{ carrinho }}</div>
+    </header>
+    <div class="busca">
+      <input v-model="busca" type="text" placeholder="Buscar produto...">
+    </div>
+    <div class="produtos">
+      <product-card 
+        v-for="p in produtosFiltrados" 
+        :key="p.id" 
+        :nome="p.nome" 
+        :preco="p.preco" 
+        :imagem="p.imagem"
+        @add-to-cart="adicionarAoCarrinho"
+      ></product-card>
+      <div v-if="produtosFiltrados.length === 0" class="vazio">
+        Nenhum produto encontrado para "{{ busca }}"
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ProductCard = {
+      props: ['nome', 'preco', 'imagem'],
+      template: `
+        <div class="card">
+          <img :src="imagem" :alt="nome">
+          <div class="card-info">
+            <h3>{{ nome }}</h3>
+            <p class="preco">R$ {{ preco.toFixed(2) }}</p>
+            <button @click="$emit('add-to-cart')">Adicionar ao Carrinho</button>
+          </div>
+        </div>
+      `
+    }
+
+    const { createApp, ref, computed } = Vue
+
+    createApp({
+      components: { 'product-card': ProductCard },
+      setup() {
+        const busca = ref('')
+        const carrinho = ref(0)
+
+        const produtos = ref([
+          { id: 1, nome: 'Tênis Nike Air', preco: 499.90, imagem: 'https://cdn.fbsbx.com/v/t65.102178-21/886658816_1781608886411871_554491281784678752_n.jpg/imagem_convertida.png?_nc_ht=cdn.fbsbx.com&_nc_ohc=Mlji5pWloVgQ7kNvwGnQiVj&sdl=0&ccb=14-4&oh=00_AQS1Unisjr-UBafFBzEd3b9JkmVGA8uXzidrxxc58_kNSA&oe=6B131D38&_nc_sid=4ee932' },
+          { id: 2, nome: 'Camiseta Adidas Rosa', preco: 129.90, imagem: 'https://cdn.fbsbx.com/v/t65.102178-21/888508256_1642687630692867_5702152192608524039_n.jpg/imagem_convertida.jpg?_nc_ht=cdn.fbsbx.com&_nc_ohc=gVEil3D0dVgQ7kNvwHLEyXt&sdl=0&ccb=14-4&oh=00_AQSTXR7pgrLndvdYposxuXDp6NIiVnm0JArxgielmQcUCg&oe=6B1302D2&_nc_sid=4ee932' },       
+          { id: 4, nome: 'Boné Nike', preco: 89.90, imagem: 'https://cdn.fbsbx.com/v/t65.102178-21/889092591_1555360546617712_6203463310052672003_n.jpg/imagem_convertida.png?_nc_ht=cdn.fbsbx.com&_nc_ohc=a304UfFrC6oQ7kNvwFbA3nP&sdl=0&ccb=14-4&oh=00_AQS4-4Pp1X8qDkcVb7Fzhlmbk3oX8xA8vt8k58VTYG2hkw&oe=6B1312DE&_nc_sid=4ee932' },
+        ])
+
+        const produtosFiltrados = computed(() => {
+          return produtos.value.filter(p => 
+            p.nome.toLowerCase().includes(busca.value.toLowerCase())
+          )
+        })
+
+        function adicionarAoCarrinho() {
+          carrinho.value++
+        }
+
+        return { busca, carrinho, produtos, produtosFiltrados, adicionarAoCarrinho }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title>Boas Compras!</title>
+</head>
+<body>
+  <h1>
+    Boas Compras!
+  </h1>
+</body>
+</html>
+
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <title> </title>
+</head>
+<body>
+  <h1>
+  </h1>
+</body>
+</html>
